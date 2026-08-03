@@ -28,33 +28,63 @@ export const useAuth = () => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return { error };
+    } catch (err: any) {
+      return {
+        error: {
+          message:
+            err?.message === "Failed to fetch"
+              ? "Failed to connect to authentication server. Please check your Supabase URL and network connection."
+              : err?.message || "An unexpected error occurred",
+        },
+      };
+    }
   };
 
   // UPDATED: Accept fullName parameter
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        // This saves the name to user_metadata in Supabase
-        data: {
-          full_name: fullName,
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          // This saves the name to user_metadata in Supabase
+          data: {
+            full_name: fullName,
+          },
         },
-      },
-    });
-    return { error };
+      });
+      return { error };
+    } catch (err: any) {
+      return {
+        error: {
+          message:
+            err?.message === "Failed to fetch"
+              ? "Failed to connect to authentication server. Please check your Supabase URL and network connection."
+              : err?.message || "An unexpected error occurred",
+        },
+      };
+    }
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    try {
+      const { error } = await supabase.auth.signOut();
+      return { error };
+    } catch (err: any) {
+      return {
+        error: {
+          message: err?.message || "An unexpected error occurred during sign out",
+        },
+      };
+    }
   };
 
   return {
